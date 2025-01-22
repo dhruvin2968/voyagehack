@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { PostCard } from "./ItiernaryCard";
-
-import { SkeletonCard } from "../components/SkeletonCard";
+import { useNavigate } from "react-router-dom";
+import { addDoc, collection } from "firebase/firestore";
+import { db, auth } from "../firebase/config";
+import Swal from 'sweetalert2';
 export const TripSurvey = () => {
   const [formData, setFormData] = useState({
     location: "",
@@ -27,10 +28,12 @@ export const TripSurvey = () => {
       setError("Please provide all required fields.");
       return;
     }
+    
+    
 
     try {
       const response = await fetch(
-        "https://shreyanshknayak-itinerarygenerator.hf.space/generate-itinerary",
+        "http://localhost:8000/generate-itinerary",
         {
           method: "POST",
           headers: {
@@ -47,6 +50,28 @@ export const TripSurvey = () => {
       if (response.ok) {
         const data = await response.json();
         setItinerary(data.itinerary);
+        const document = {
+          title: data.itinerary.title,
+          days: data.itinerary.days,
+          author: {
+            name: auth.currentUser.displayName,
+            id: auth.currentUser.uid,
+          },
+        };
+        
+        try {
+          await addDoc(postRef, document);
+        } catch (error) {
+          console.error("Error creating post:", error);
+          Swal.fire({
+            title: "Itinerary Generation Failed!",
+            text: "Something went wrong. Please try again.",
+            icon: "error",
+            confirmButtonText: 'Okay',
+          });
+        } finally {
+           // Re-enable the button in case of failure or success
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.detail || "Something went wrong.");
@@ -55,6 +80,10 @@ export const TripSurvey = () => {
       setError("Failed to connect to the backend.");
     }
   };
+  const navigate = useNavigate();
+  const postRef = collection(db, "posts");
+ 
+
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-blue-100 via-white to-green-100 flex items-center justify-center p-8">
@@ -108,7 +137,7 @@ export const TripSurvey = () => {
             <p className="text-gray-700 text-lg mt-4 font-medium">
               {itinerary.introduction}
             </p>
-
+          
             <div className="mt-6 bg-gray-100 rounded-lg p-4">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 Daily Plans
@@ -140,7 +169,7 @@ export const TripSurvey = () => {
               ))}
             </div>
 
-            <div className="mt-8 bg-gray-100 font-serif rounded-lg p-4 ">
+            {/* <div className="mt-8 bg-gray-100 font-serif rounded-lg p-4 ">
               <h2 className="text-2xl font-semibold text-gray-800">Events:</h2>
               <ul className="list-disc mt-4 pl-8 text-gray-700 text-md">
                 {itinerary.events.map((event, idx) => (
@@ -149,7 +178,7 @@ export const TripSurvey = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
             <div className="mt-8 bg-gray-100 rounded-lg p-4">
               <h2 className="text-2xl font-semibold text-gray-800">
