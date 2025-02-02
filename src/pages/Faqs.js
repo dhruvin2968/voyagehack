@@ -69,7 +69,9 @@ export const FAQ = () => {
       answer: "Some features, like viewing saved itineraries, are available offline. However, booking and live tracking require an internet connection."
     }
   ];
-
+  useEffect(() => {
+    document.title = `Faqs - Planorama`;
+  });
   return (
     <div className="min-h-screen bg-Blue text-gray-800">
       <div className="container mx-auto px-6 py-16">

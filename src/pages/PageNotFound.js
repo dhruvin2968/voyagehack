@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 export const PageNotFound = () => {
 
   useEffect(() => {
-    document.title = `Page Not Found / RevMechanics`;
+    document.title = `Page Not Found - Planorama`;
   });
 
   return (

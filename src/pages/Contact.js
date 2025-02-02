@@ -13,7 +13,9 @@ export const Contact = () => {
     e.preventDefault();
     console.log("Form submitted:", form);
   };
-
+  useEffect(() => {
+    document.title = `Contact - Planorama`;
+  });
   return (
     <div className="relative w-full min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/images/contact-bg.jpg')" }}>
       <div className="bg-white bg-opacity-90 p-8 md:p-12 rounded-2xl shadow-lg max-w-3xl w-full">

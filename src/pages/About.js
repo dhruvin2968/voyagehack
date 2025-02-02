@@ -1,6 +1,9 @@
 import React from 'react';
 
 export const AboutPage = () => {
+  useEffect(() => {
+    document.title = `About - Planorama`;
+  });
   return (
     <div className="min-h-screen bg-Bluee">
       <div className="container mx-auto px-6 py-16">
