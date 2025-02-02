@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import BgVideo from "../components/BgVideo";
 import { ThemeSelector } from "../components/ThemeSelector";
 import { Chatbot } from "../components/ChatBot";
+import Carousel from "../components/Carousel"
 export const Home = () => {
   useEffect(() => {
     document.title = `Planorama - The Perfect TravelPlanner`;
@@ -66,28 +67,19 @@ export const Home = () => {
                 ></path>
               </svg>
             </button>
-          </div>
-        </div>
-      </main>
 
+          </div>
+         
+        </div>
+        <Carousel/>
+      </main>
+    
       {/* Theme Selector Section */}
       <div id="theme-selector">
         <ThemeSelector />
         <div className="border rounded-bl-full p-4 flex items-center justify-center">
           <Chatbot />
         </div>
-
-        {/* Info Section
-        <section className="px-6 py-10 bg-gray-100">
-          <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">
-            <p className="text-gray-700 mb-4">
-              Explore our curated list of must-visit destinations around the globe.
-            </p>
-            <button className="flex items-center justify-center w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full">
-              ➔
-            </button>
-          </div>
-        </section> */}
       </div>
     </div>
   );

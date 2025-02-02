@@ -1,17 +1,23 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
 import { db, auth } from "../firebase/config";
-import Swal from 'sweetalert2';
-export const TripSurvey = () => {
-  const [formData, setFormData] = useState({
-    location: "",
-    dates: "",
-    theme: "",
-  });
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import format from "date-fns/format";
 
+export const TripSurvey = ({ setShowThemes }) => {
+  const [formData, setFormData] = useState({ location: "", dates: "", theme: "" });
+  const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState(null);
   const [error, setError] = useState("");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [dateRange, setDateRange] = useState([new Date(), new Date()]);
+
+  const handleDateChange = (value) => {
+    setDateRange(value);
+    setFormData((prev) => ({ ...prev, dates: `${format(value[0], "yyyy-MM-dd")} to ${format(value[1], "yyyy-MM-dd")}` }));
+    setShowCalendar(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,176 +25,126 @@ export const TripSurvey = () => {
   };
 
   const handleGenerateItinerary = async () => {
-    setError(""); // Clear previous errors
-    setItinerary(null); // Clear previous itinerary
-
+    setError("");
+    setItinerary(null);
     const { location, dates, theme } = formData;
-
     if (!location || !dates || !theme) {
       setError("Please provide all required fields.");
       return;
     }
-    
-    
-
     try {
-      const response = await fetch(
-        "http://localhost:8000/generate-itinerary",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            destination: location,
-            dates: dates,
-            theme: theme,
-          }),
-        }
-      );
-
+      setLoading(true);
+      const response = await fetch("https://shreyanshknayak-itinerarygenerator.hf.space/generate-itinerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ destination: location, dates, theme }),
+      });
+      
       if (response.ok) {
         const data = await response.json();
         setItinerary(data.itinerary);
-        const document = {
+        await addDoc(collection(db, "posts"), {
           title: data.itinerary.title,
           days: data.itinerary.days,
-          author: {
-            name: auth.currentUser.displayName,
-            id: auth.currentUser.uid,
-          },
-        };
-        
-        try {
-          await addDoc(postRef, document);
-        } catch (error) {
-          console.error("Error creating post:", error);
-          Swal.fire({
-            title: "Itinerary Generation Failed!",
-            text: "Something went wrong. Please try again.",
-            icon: "error",
-            confirmButtonText: 'Okay',
-          });
-        } finally {
-           // Re-enable the button in case of failure or success
-        }
+          author: { name: auth.currentUser.displayName, id: auth.currentUser.uid },
+        });
       } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Something went wrong.");
+        setError("Failed to generate itinerary.");
       }
     } catch (err) {
       setError("Failed to connect to the backend.");
+    } finally {
+      setLoading(false);
     }
   };
-  const navigate = useNavigate();
-  const postRef = collection(db, "posts");
- 
-
-
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-blue-100 via-white to-green-100 flex items-center justify-center p-8">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-3xl">
-        <h1 className="text-4xl font-bold text-blue-800 mb-6 text-center">
-          Plan Your Dream Trip ✈️
-        </h1>
-        <p className="text-gray-600 text-center mb-8">
-          Tell us about your trip, and we'll craft the perfect itinerary for
-          you!
-        </p>
-        <form className="space-y-4">
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Destination"
-            className="w-full p-3 border rounded-lg"
+    <div className=" z-50 relative flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100 p-8">
+      <div className="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-3xl relative transition-all duration-300 hover:shadow-3xl">
+        <button 
+          onClick={() => setShowThemes(false)} 
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <h1 className="text-5xl font-extrabold text-blue-800 mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400">Plan Your Dream Trip</h1>
+        <p className="text-gray-600 text-center mb-8 text-lg">Tell us about your trip, and we'll craft the perfect itinerary for you!</p>
+        <form className="space-y-6">
+          <input 
+            type="text" 
+            name="location" 
+            value={formData.location} 
+            onChange={handleChange} 
+            placeholder="Destination" 
+            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
           />
-          <input
-            type="text"
-            name="dates"
-            value={formData.dates}
-            onChange={handleChange}
-            placeholder="Dates (e.g., 2025-01-20 to 2025-01-23)"
-            className="w-full p-3 border rounded-lg"
+          <div className="relative">
+            <input 
+              type="text" 
+              name="dates" 
+              value={formData.dates} 
+              readOnly 
+              placeholder="Select Dates" 
+              onClick={() => setShowCalendar(!showCalendar)} 
+              className="w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer focus:outline-none focus:border-blue-500 transition-colors duration-200"
+            />
+            {showCalendar && (
+              <div className="absolute mt-2 z-50 shadow-lg rounded-lg overflow-hidden">
+                <Calendar 
+                  onChange={handleDateChange} 
+                  selectRange={true} 
+                  value={dateRange}
+                />
+              </div>
+            )}
+          </div>
+          <input 
+            type="text" 
+            name="theme" 
+            value={formData.theme} 
+            onChange={handleChange} 
+            placeholder="Theme (e.g., Family Vacation)" 
+            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
           />
-          <input
-            type="text"
-            name="theme"
-            value={formData.theme}
-            onChange={handleChange}
-            placeholder="Theme (e.g., Family Vacation)"
-            className="w-full p-3 border rounded-lg"
-          />
-          <button
-            type="button"
-            onClick={handleGenerateItinerary}
-            className="w-full bg-blue-600 text-white p-3 rounded-lg"
+          <button 
+            type="button" 
+            onClick={handleGenerateItinerary} 
+            className="w-full p-4 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-bold rounded-lg transform transition duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
           >
             Generate Itinerary
           </button>
         </form>
-        {error && <p className="text-red-600 mt-4">{error}</p>}
+        {loading && (
+          <div className="flex justify-center mt-6">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+        {error && <p className="text-red-600 mt-6 text-center">{error}</p>}
         {itinerary && (
-          <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-            <h1 className="text-4xl font-extrabold text-green-700 border-b-2 border-green-300 pb-2">
-              Your Itinerary
-            </h1>
-            <p className="text-gray-700 text-lg mt-4 font-medium">
-              {itinerary.introduction}
-            </p>
-          
-            <div className="mt-6 bg-gray-100 rounded-lg p-4">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Daily Plans
-              </h2>
+          <div className="mt-10 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-8 shadow-inner">
+            <h2 className="text-4xl font-extrabold text-green-700 border-b-2 border-green-300 pb-2 mb-6">Your Itinerary</h2>
+            <p className="text-gray-700 text-lg mt-4 font-medium">{itinerary.introduction}</p>
+            <div className="mt-8 bg-white rounded-lg p-6 shadow-md">
+              <h3 className="text-3xl font-bold text-gray-800 mb-6">Daily Plans</h3>
               {itinerary.days.split("*").map((line, index) => (
-                <div key={index}>
-                  {(line.startsWith("Day") ||
-                    line.startsWith("Morning") ||
-                    line.startsWith("Afternoon") ||
-                    line.startsWith("Evening") ||
-                    line.startsWith("Optional") ||
-                    line.startsWith("Notes")) && <br />}
-                  {line.startsWith("Day") ||
-                  line.startsWith("Theme") ||
-                  line.startsWith("Overall Vibe") ||
-                  line.startsWith("##") ||
-                  line.startsWith("Morning") ||
-                  line.startsWith("Afternoon") ||
-                  line.startsWith("Evening") ||
-                  line.startsWith("Optional") ||
-                  line.startsWith("Notes") ? (
-                    <b>
-                      <p className="text-gray-900 text-md font-serif">{line}</p>
-                    </b>
+                <div key={index} className="mb-2">
+                  {(line.startsWith("Day") || line.startsWith("Morning") || line.startsWith("Afternoon") || line.startsWith("Evening") || line.startsWith("Optional") || line.startsWith("Notes")) && <div className="mt-4"></div>}
+                  {line.startsWith("Day") || line.startsWith("Theme") || line.startsWith("Overall Vibe") || line.startsWith("##") || line.startsWith("Morning") || line.startsWith("Afternoon") || line.startsWith("Evening") || line.startsWith("Optional") || line.startsWith("Notes") ? (
+                    <p className="text-blue-700 text-xl font-bold font-serif">{line}</p>
                   ) : (
-                    <p className="text-gray-900 text-md font-serif">{line}</p>
+                    <p className="text-gray-700 text-lg font-serif">{line}</p>
                   )}
                 </div>
               ))}
             </div>
-
-            {/* <div className="mt-8 bg-gray-100 font-serif rounded-lg p-4 ">
-              <h2 className="text-2xl font-semibold text-gray-800">Events:</h2>
-              <ul className="list-disc mt-4 pl-8 text-gray-700 text-md">
-                {itinerary.events.map((event, idx) => (
-                  <li key={idx} className="py-2">
-                    {event}
-                  </li>
-                ))}
-              </ul>
-            </div> */}
-
-            <div className="mt-8 bg-gray-100 rounded-lg p-4">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Final Notes:
-              </h2>
-              <p className="mt-4 text-gray-600">{itinerary.final_notes}</p>
+            <div className="mt-8 bg-white rounded-lg p-6 shadow-md">
+              <h3 className="text-3xl font-semibold text-gray-800 mb-4">Final Notes:</h3>
+              <p className="mt-4 text-gray-600 text-lg">{itinerary.final_notes}</p>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-};
+};  
