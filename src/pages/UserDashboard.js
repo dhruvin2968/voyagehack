@@ -12,7 +12,9 @@ export const UserDashboard = () => {
   const [isGrid, setIsGrid] = useState(false); 
   const userId = auth.currentUser?.uid;
   const postRef = useRef(collection(db, "posts"));
-
+  useEffect(() => {
+    document.title = `Dashboard - Planorama`;
+  });
   useEffect(() => {
     async function getUserPosts() {
       if (!userId) return;
@@ -51,7 +53,7 @@ export const UserDashboard = () => {
         }`}
       >
         {loading
-          ? new Array(2).fill(false).map((_, index) => <SkeletonCard key={index} />)
+          ? new Array(5).fill(false).map((_, index) => <SkeletonCard key={index} />)
           : posts.map((post) => <PostCard key={post.id} post={post} toggle={toggle} setToggle={setToggle} />)}
         {!loading && posts.length === 0 && (
           <p className="text-center col-span-full text-gray-600">

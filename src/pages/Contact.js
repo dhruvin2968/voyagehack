@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
-
+import { useEffect } from "react";
 export const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 

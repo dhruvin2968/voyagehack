@@ -6,7 +6,7 @@ export const SkeletonCard = () => {
         <p className="title">{<Skeleton />}</p>
         <p className="description"><Skeleton count={3} /></p>
         <p className="control">
-          <Skeleton width="70px" />
+          <Skeleton width="40px" />
         </p>
     </div>
   )

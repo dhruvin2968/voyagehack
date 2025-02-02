@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { useEffect } from "react";
 export const AboutPage = () => {
   useEffect(() => {
     document.title = `About - Planorama`;

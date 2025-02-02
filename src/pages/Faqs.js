@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useEffect } from "react";
 export const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
