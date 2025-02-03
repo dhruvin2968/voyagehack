@@ -14,7 +14,7 @@ const Carousel2 = () => {
     const content = contentRef.current;
     if (!carousel || !content) return;
 
-    const scrollSpeed = 0.5; // Adjust this value to change scroll speed
+    const scrollSpeed = 0.5;
     let animationFrameId;
 
     const scroll = () => {
