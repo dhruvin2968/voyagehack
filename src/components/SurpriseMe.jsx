@@ -89,7 +89,7 @@ export const SurpriseMe = () => {
         setError(errorData.detail || "Something went wrong.");
       }
     } catch (err) {
-      setError("Failed to connect to the backend.");
+      setError("Login to save this itinerary in your profile.");
     }
   };
 
