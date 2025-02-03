@@ -94,7 +94,7 @@ export const SurpriseMe = () => {
   };
 
   return (
-    <div className=" z-40 rounded-3xl relative bg-gradient-to-br from-blue-100 via-white to-green-100 flex items-center justify-center p-8">
+    <div className=" z-30 rounded-3xl relative bg-gradient-to-br from-blue-100 via-white to-green-100 flex items-center justify-center p-8">
     <div className="bg-white shadow-2xl  rounded-3xl p-10 w-full max-w-2xl transition-all duration-300 hover:shadow-3xl">
     <h1 className="text-5xl font-extrabold text-blue-800 mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400">Embark on a Mysterious Adventure</h1>
 <p className="text-gray-600 text-center mb-8 text-lg">Let us whisk you away to an unexpected destination filled with wonder and excitement!</p>

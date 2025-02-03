@@ -58,7 +58,7 @@ export const TripSurvey = ({ setShowThemes }) => {
     }
   };
   return (
-    <div className=" z-50 relative flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100 p-8">
+    <div className=" z-30 relative flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100 p-8">
       <div className="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-3xl relative transition-all duration-300 hover:shadow-3xl">
         <button 
           onClick={() => setShowThemes(false)} 

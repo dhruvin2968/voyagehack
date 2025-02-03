@@ -36,7 +36,7 @@ const Carousel = () => {
   return (
     <div 
       ref={carouselRef}
-      className="flex absolute z-40 overflow-hidden w-full"
+      className="flex absolute z-20 overflow-hidden w-full"
       style={{ height: '200px' }} // Adjust this value to control the height of the carousel
     >
       {[...images, ...images].map((image, index) => (
