@@ -1,9 +1,16 @@
 import React from 'react';
 import { useEffect } from "react";
+import {useNavigate} from "react-router-dom"
 export const AboutPage = () => {
   useEffect(() => {
     document.title = `About - Planorama`;
   });
+  const navigate=useNavigate();
+  const handleClick=()=>
+  {
+    navigate("/");
+    }
+  
   return (
     <div className="min-h-screen bg-Bluee">
       <div className="container mx-auto px-6 py-16">
@@ -50,7 +57,7 @@ export const AboutPage = () => {
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
             At Planorama, we believe that every journey should be as unique as the traveler. With cutting-edge features, user-friendly interfaces, and unparalleled support, we are committed to redefining the way you travel.
           </p>
-          <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition-all duration-200">
+          <button onClick={handleClick} className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition-all duration-200">
             Start Planning Your Adventure
           </button>
         </div>

@@ -3,6 +3,9 @@ import BgVideo from "../components/BgVideo";
 import { ThemeSelector } from "../components/ThemeSelector";
 import { Chatbot } from "../components/ChatBot";
 import Carousel from "../components/Carousel"
+
+
+
 export const Home = () => {
   useEffect(() => {
     document.title = `Planorama - The Perfect TravelPlanner`;
@@ -72,11 +75,14 @@ export const Home = () => {
          
         </div>
         <Carousel/>
+       
       </main>
     
       {/* Theme Selector Section */}
       <div id="theme-selector">
+      
         <ThemeSelector />
+       
         <div className="border rounded-bl-full p-4 flex items-center justify-center">
           <Chatbot />
         </div>

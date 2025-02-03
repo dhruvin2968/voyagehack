@@ -105,7 +105,7 @@ export const SurpriseMe = () => {
           name="location"
           value={formData.location}
           onChange={handleChange}
-          placeholder="Destination"
+          placeholder="Country"
           className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
         />
         <div className="relative">
