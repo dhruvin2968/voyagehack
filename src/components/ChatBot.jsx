@@ -1,42 +1,38 @@
 import React, { useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Maximize, Minimize } from 'lucide-react';
 import Beatrix from './BeatrixImg';
+import MessageComponent from './MessageComponent';
+
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [userName, setUserName] = useState('');
 
   const toggleChatbot = () => setIsOpen(!isOpen);
+  const toggleFullScreen = () => setIsFullScreen(!isFullScreen);
 
-  const getBotResponse = (message) => {
-    const lowerMessage = message.toLowerCase();
-
-    if (lowerMessage === 'hi' || lowerMessage === 'hello') {
-      return "Hi! What's your name?";
-    } else if (!userName && lowerMessage.length > 0) {
-      setUserName(message);
-      return `Hi ${message}! Nice to meet you. How can I help you today?`;
-    } else {
-      return "I'm still learning. Try saying 'hi' to start a conversation!";
-    }
-  };
-
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = {
-      text: input,
-      sender: 'user',
-    };
+    const userMessage = { text: input, sender: 'user' };
+    setMessages([...messages, userMessage]);
 
-    const botResponse = {
-      text: getBotResponse(input),
-      sender: 'bot',
-    };
+    try {
+      const response = await fetch('https://dhruvin2968-plaorama-chatbot.hf.space/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: input }),
+      });
 
-    setMessages([...messages, userMessage, botResponse]);
+      const data = await response.json();
+      const botResponse = { text: data.response || 'Error: No response from server', sender: 'bot' };
+      setMessages((prev) => [...prev, botResponse]);
+    } catch (error) {
+      setMessages((prev) => [...prev, { text: 'Error: Unable to reach server', sender: 'bot' }]);
+    }
+
     setInput('');
   };
 
@@ -45,56 +41,43 @@ export const Chatbot = () => {
       {/* Chatbot Toggle Button */}
       <div
         onClick={toggleChatbot}
-        className={`fixed bottom-4 right-4 z-50 cursor-pointer p-3 rounded-full bg-transparent  transition-transform duration-300 ${
-          isOpen ? 'translate-x-[calc(100%-130px)] translate-y-[calc(100%-220px)] ' : ''
+        className={`fixed bottom-4 right-4 z-50 cursor-pointer p-3 rounded-full bg-transparent transition-transform duration-300 ${
+          isOpen ? 'translate-x-[calc(100%-130px)] translate-y-[calc(100%-220px)]' : ''
         }`}
       >
-       
         <Beatrix />
       </div>
 
       {/* Chatbot UI */}
       <div
-        className={`fixed bottom-4 z-40 right-4 w-96 h-[500px] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition-transform duration-300 ${
+        className={`fixed bottom-4 right-4 z-40 bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-[120%]'
-        }`}
+        } ${isFullScreen ? 'w-[90vw] h-[90vh]' : 'w-96 h-[500px]'}`}
       >
+        {/* Header with Fullscreen Toggle */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 flex items-center justify-between rounded-t-lg">
           <h2 className="text-white font-bold text-xl">Plan with Beatrix</h2>
-          <button
-            onClick={toggleChatbot}
-            className="text-white hover:text-gray-200 focus:outline-none"
-          >
-            ✕
-          </button>
+          <div className="flex gap-2">
+            <button onClick={toggleFullScreen} className="text-white hover:text-gray-200 focus:outline-none">
+              {isFullScreen ? <Minimize size={20} /> : <Maximize size={20} />}
+            </button>
+            <button onClick={toggleChatbot} className="text-white hover:text-gray-200 focus:outline-none">
+              ✕
+            </button>
+          </div>
         </div>
 
+        {/* Messages */}
         <div className="flex-1 p-4 overflow-y-auto">
-          {messages.length === 0 && (
-            <div className="text-center text-gray-500 mt-4">
-              Say hi to start chatting!
-            </div>
-          )}
+          {messages.length === 0 && <div className="text-center text-gray-500 mt-4"> Ask me anything!!</div>}
           {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-4 flex ${
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-gray-100 text-gray-800 rounded-bl-none'
-                }`}
-              >
-                {message.text}
-              </div>
+            <div key={index} className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <MessageComponent message={message} />
             </div>
           ))}
         </div>
 
+        {/* Input Field */}
         <form onSubmit={handleSendMessage} className="p-4 border-t">
           <div className="flex gap-2">
             <input
@@ -104,10 +87,7 @@ export const Chatbot = () => {
               placeholder="Type your message..."
               className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
               <Send size={20} />
             </button>
           </div>
