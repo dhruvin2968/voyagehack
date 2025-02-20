@@ -4,7 +4,7 @@ import { ThemeSelector } from "../components/ThemeSelector";
 import { Chatbot } from "../components/ChatBot";
 import Carousel from "../components/Carousel"
 
-
+import TravelScene from "../components/Scene"
 
 export const Home = () => {
   useEffect(() => {
@@ -77,11 +77,15 @@ export const Home = () => {
         <Carousel/>
        
       </main>
-    
+      <TravelScene />
+      <div id="theme-selector">
+      
+      <ThemeSelector />
+      </div>
       {/* Theme Selector Section */}
       <div id="theme-selector">
       
-        <ThemeSelector />
+       
        
         <div className="border rounded-bl-full p-4 flex items-center justify-center">
           <Chatbot />

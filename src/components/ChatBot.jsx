@@ -20,7 +20,7 @@ export const Chatbot = () => {
     setMessages([...messages, userMessage]);
 
     try {
-      const response = await fetch('https://dhruvin2968-plaorama-chatbot.hf.space/generate', {
+      const response = await fetch('http://127.0.0.1:8000/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: input }),
